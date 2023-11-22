@@ -1,0 +1,4 @@
+﻿Andrzej, Duda, 2
+Maksymilian, Głowacki, 1
+Katarzyna, Grabowska, 3
+Dawid, Tarasiński, 0
