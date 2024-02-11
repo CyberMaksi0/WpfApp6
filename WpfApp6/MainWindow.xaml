@@ -5,69 +5,45 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Person List App" Height="450" Width="800">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="2*"/>
-        </Grid.ColumnDefinitions>
-
-        <Grid Grid.Column="0" Background="#D0E6A5">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <TextBlock Grid.Row="0" Text="Lista osób" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Foreground="#4C4C4C" FontFamily="Comic Sans MS"/>
-
-            <Label Grid.Row="1" Content="Imię:" Foreground="#4C4C4C" FontFamily="Comic Sans MS"/>
-            <TextBox Grid.Row="1" x:Name="txtFirstName" Margin="5" FontFamily="Comic Sans MS" FontSize="14"/>
-
-            <Label Grid.Row="2" Content="Nazwisko:" Foreground="#4C4C4C" FontFamily="Comic Sans MS"/>
-            <TextBox Grid.Row="2" x:Name="txtLastName" Margin="5" FontFamily="Comic Sans MS" FontSize="14"/>
-
-            <Label Grid.Row="3" Content="Wykształcenie:" Foreground="#4C4C4C" FontFamily="Comic Sans MS"/>
-            <ComboBox Grid.Row="3" x:Name="cmbEducation" Margin="5" FontFamily="Comic Sans MS" FontSize="14" Background="#FFEAF2F5">
-                <ComboBoxItem Content="Podstawowe" Tag="0"/>
-                <ComboBoxItem Content="Średnie" Tag="1"/>
-                <ComboBoxItem Content="Wyższe" Tag="2"/>
-                <ComboBoxItem Content="Profesor_Nadzwyczajny" Tag="3"/>
-            </ComboBox>
-
-            <Button Grid.Row="4" Content="Dodaj osobę" Click="AddPerson_Click" Margin="5" FontFamily="Comic Sans MS" FontSize="14" FontWeight="Bold" Background="#FF7C8B8C" Foreground="White"/>
-            <Button Grid.Row="5" Content="Usuń osobę" Click="RemovePerson_Click" Margin="5" FontFamily="Comic Sans MS" FontSize="14" FontWeight="Bold" Background="#FF7C8B8C" Foreground="White"/>
-            <Button Grid.Row="6" Content="Edytuj osobę" Click="EditPerson_Click" Margin="5" FontFamily="Comic Sans MS" FontSize="14" FontWeight="Bold" Background="#FF7C8B8C" Foreground="White"/>
-        </Grid>
-        <ListBox x:Name="lstPersons" Grid.Column="1" Margin="10" Background="#FFC7CEEA" FontFamily="Comic Sans MS">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding}" Padding="5"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
+        Title="Book List App" Height="450" Width="800">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Plik">
+                <MenuItem Header="Otwórz" Click="Open_Click"></MenuItem>
+                <MenuItem Header="Zapisz" Click="Save_Click"></MenuItem>
+                <MenuItem Header="Zamknij" Click="Close_Click"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Edycja">
+                <MenuItem Header="Dodaj" Click="AddBook_Click"></MenuItem>
+                <MenuItem Header="Zmień" Click="EditBook_Click"></MenuItem>
+                <MenuItem Header="Usuń" Click="RemoveBook_Click"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <ListBox x:Name="lstBooks" Background="#FFC7CEEA" FontFamily="Comic Sans MS" HorizontalContentAlignment="Stretch">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
-                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Foreground" Value="Black"/>
+                    <Setter Property="Height" Value="40"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding Education}" Value="0">
-                            <Setter Property="Background" Value="#FFFFE4C4"/>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Foreground" Value="Red"/>
+                            <Setter Property="Height" Value="60"/>
+                        </Trigger>
+                        <DataTrigger Binding="{Binding Class}" Value="0">
+                            <Setter Property="Background" Value="PaleGoldenrod"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Education}" Value="1">
-                            <Setter Property="Background" Value="#FFBFEFFF"/>
+                        <DataTrigger Binding="{Binding Class}" Value="1">
+                            <Setter Property="Background" Value="PaleGreen"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Education}" Value="2">
-                            <Setter Property="Background" Value="#FFC2F0C2"/>
+                        <DataTrigger Binding="{Binding Class}" Value="2">
+                            <Setter Property="Background" Value="PaleTurquoise"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding Education}" Value="3">
-                            <Setter Property="Background" Value="#FFAAAAEE"/>
+                        <DataTrigger Binding="{Binding Class}" Value="3">
+                            <Setter Property="Background" Value="PaleVioletRed"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </ListBox.ItemContainerStyle>
         </ListBox>
-    </Grid>
+    </DockPanel>
 </Window>

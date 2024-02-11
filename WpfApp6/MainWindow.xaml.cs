@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -8,36 +10,36 @@ namespace WpfApp6
 {
     public partial class MainWindow : Window
     {
-
-        public enum EducationLevel
+        public enum Class
         {
-            Podstawowe = 0,
-            Średnie = 1,
-            Wyższe = 2,
-            Profesor_Nadzwyczajny = 3,
+            Pierwsza = 0,
+            Druga = 1,
+            Trzecia = 2,
+            Czwarta = 3,
         }
 
-        public class Person
+        public class Book
         {
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-            public EducationLevel Education { get; set; }
+            public string Title { get; set; }
+            public string Author { get; set; }
+            public int Class { get; set; }
 
             public override string ToString()
             {
-                return $"{FirstName} {LastName} - {Education}";
+                return $"{Title}, {Author}, {Class}";
             }
         }
 
-        public ObservableCollection<Person> Persons { get; set; }
+        public ObservableCollection<Book> Books { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
-            Persons = new ObservableCollection<Person>();
-            lstPersons.ItemsSource = Persons;
-            LoadDataFromFile("C:\\Users\\glowacki.maksymilian\\source\\repos\\WpfApp6\\WpfApp6\\PersonsData.txt");
+            Books = new ObservableCollection<Book>();
+            lstBooks.ItemsSource = Books;
+            LoadDataFromFile("C:\\Users\\Admin\\Source\\Repos\\WpfApp6\\WpfApp6\\BooksData.txt");
         }
+
         private void LoadDataFromFile(string filePath)
         {
             try
@@ -53,18 +55,16 @@ namespace WpfApp6
 
                             if (parts.Length == 3)
                             {
-                                string firstName = parts[0];
-                                string lastName = parts[1];
+                                string title = parts[0];
+                                string author = parts[1];
 
-                                if (int.TryParse(parts[2], out int educationValue))
+                                if (int.TryParse(parts[2], out int classValue))
                                 {
-                                    EducationLevel education = (EducationLevel)educationValue;
-
-                                    Persons.Add(new Person
+                                    Books.Add(new Book
                                     {
-                                        FirstName = firstName,
-                                        LastName = lastName,
-                                        Education = education
+                                        Title = title,
+                                        Author = author,
+                                        Class = classValue
                                     });
                                 }
                             }
@@ -81,57 +81,133 @@ namespace WpfApp6
                 MessageBox.Show($"Błąd podczas wczytywania danych z pliku: {ex.Message}");
             }
         }
-        private void EditPerson_Click(object sender, RoutedEventArgs e)
-        {
-            if (lstPersons.SelectedItem != null)
-            {
-                Person selectedPerson = (Person)lstPersons.SelectedItem;
 
-                EditPersonWindow editWindow = new EditPersonWindow(selectedPerson);
+        private void EditBook_Click(object sender, RoutedEventArgs e)
+        {
+            if (lstBooks.SelectedItem != null)
+            {
+                Book selectedBook = (Book)lstBooks.SelectedItem;
+                EditBookWindow editWindow = new EditBookWindow(selectedBook);
 
                 if (editWindow.ShowDialog() == true)
                 {
-                    selectedPerson.FirstName = editWindow.FirstName;
-                    selectedPerson.LastName = editWindow.LastName;
-                    selectedPerson.Education = editWindow.Education;
+                    selectedBook.Title = editWindow.Title;
+                    selectedBook.Author = editWindow.Author;
+                    selectedBook.Class = (int)editWindow.Class;
 
-                    lstPersons.Items.Refresh();
+                    lstBooks.Items.Refresh();
                 }
             }
         }
 
-        private void AddPerson_Click(object sender, RoutedEventArgs e)
+        private void AddBook_Click(object sender, RoutedEventArgs e)
         {
-            string firstName = txtFirstName.Text;
-            string lastName = txtLastName.Text;
+            EditBookWindow addWindow = new EditBookWindow(new Book());
 
-            if (cmbEducation.SelectedItem != null && cmbEducation.SelectedItem is ComboBoxItem selectedItem)
+            if (addWindow.ShowDialog() == true)
             {
-                if (int.TryParse(selectedItem.Tag.ToString(), out int educationValue))
+                string title = addWindow.Title;
+                string author = addWindow.Author;
+                int classValue = (int)addWindow.Class;
+
+                Book newBook = new Book
                 {
-                    EducationLevel education = (EducationLevel)educationValue;
+                    Title = title,
+                    Author = author,
+                    Class = classValue
+                };
 
-                    Person newPerson = new Person
+                Books.Add(newBook);
+            }
+        }
+
+        private void RemoveBook_Click(object sender, RoutedEventArgs e)
+        {
+            if (lstBooks.SelectedItem != null)
+            {
+                Books.Remove((Book)lstBooks.SelectedItem);
+            }
+        }
+
+        private void Open_Click(object sender, RoutedEventArgs e)
+        {
+            LoadDataFromFile();
+        }
+
+        private void Save_Click(object sender, RoutedEventArgs e)
+        {
+            SaveDataToFile("C:\\Users\\Admin\\Desktop\\BooksData.txt");
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void LoadDataFromFile()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            openFileDialog.Filter = "Pliki tekstowe (*.txt)|*.txt|Wszystkie pliki (*.*)|*.*";
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    using (StreamReader sr = new StreamReader(openFileDialog.FileName))
                     {
-                        FirstName = firstName,
-                        LastName = lastName,
-                        Education = education
-                    };
+                        Books.Clear();
 
-                    Persons.Add(newPerson);
-                    txtFirstName.Clear();
-                    txtLastName.Clear();
-                    cmbEducation.SelectedIndex = -1;
+                        string line;
+                        while ((line = sr.ReadLine()) != null)
+                        {
+                            string[] parts = line.Split(',');
+
+                            if (parts.Length == 3)
+                            {
+                                string title = parts[0];
+                                string author = parts[1];
+
+                                if (int.TryParse(parts[2], out int classValue))
+                                {
+                                    Books.Add(new Book
+                                    {
+                                        Title = title,
+                                        Author = author,
+                                        Class = classValue
+                                    });
+                                }
+                            }
+                        }
+
+                        MessageBox.Show("Dane zostały wczytane z pliku.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Błąd podczas wczytywania danych z pliku: {ex.Message}");
                 }
             }
         }
 
-
-        private void RemovePerson_Click(object sender, RoutedEventArgs e)
+        private void SaveDataToFile(string filePath)
         {
-            if (lstPersons.SelectedItem != null)
+            try
             {
-                Persons.Remove((Person)lstPersons.SelectedItem);
+                using (StreamWriter sw = new StreamWriter(filePath, false, Encoding.UTF8))
+                {
+                    foreach (Book book in Books)
+                    {
+                        sw.WriteLine($"{book.Title},{book.Author},{book.Class}");
+                    }
+                }
+                MessageBox.Show("Dane zostały zapisane do pliku.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Błąd podczas zapisywania danych do pliku: {ex.Message}");
             }
         }
     }
